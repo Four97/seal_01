@@ -197,6 +197,6 @@ void dect_rect(Mat src, Mat imgRect)
 
 	cout << "存在矩形印章个数: " << num_r << endl;
 	cout << "存在三角形印章个数: " << num_t << endl;
-	imshow("矩形", src);
+	//imshow("矩形", src);
 
 }

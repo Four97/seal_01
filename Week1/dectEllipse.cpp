@@ -84,6 +84,7 @@ bool checkEllipseShape(Mat src, vector<Point> contour, RotatedRect ellipse, doub
 
 	//match shape
 	double a0 = matchShapes(ellipse_point, contour, CV_CONTOURS_MATCH_I1, 0);
+	cout << "测试" << a0 << endl;
 	if (a0 > 0.01)
 	{
 		//cout << "a0" << a0 << endl;
@@ -100,6 +101,9 @@ void dectEllipse(Mat src, Mat img)
 	Mat srcTemp = src.clone();
 	Mat imgTemp = img.clone();
 
+	imwrite("imgTemp.jpg", imgTemp);
+
+
 	//滤波
 	Mat outgray_2;
 	outgray_2 = img.clone();
@@ -109,8 +113,8 @@ void dectEllipse(Mat src, Mat img)
 	//细化
 	Mat out_thin;
 	thin(imgTemp, out_thin, 7);
-	//imshow("out_thin", out_thin);
-
+	imshow("out_thin", out_thin);
+	imwrite("out_thin.jpg", out_thin);
 	// convert into gray
 	//cvtColor(imgTemp, imgTemp, CV_BGR2GRAY);
 
@@ -133,6 +137,7 @@ void dectEllipse(Mat src, Mat img)
 	vector<RotatedRect> minEllipse(contours.size());
 	for (int i = 0; i < contours.size(); i++)
 	{
+		
 		//point size check
 		if (contours[i].size() < 10)
 		{
@@ -143,7 +148,7 @@ void dectEllipse(Mat src, Mat img)
 		if (contourArea(contours[i]) < 500)//原定10
 		{
 			continue;
-			cout << "contourArea: " << contourArea(contours[i]) << endl;
+			//cout << "contourArea: " << contourArea(contours[i]) << endl;
 		}
 
 
@@ -172,7 +177,7 @@ void dectEllipse(Mat src, Mat img)
 			if (dis < 9e-5)//a^2时 9e-5
 			{
 				k = 0;
-
+				
 				break;
 
 			}
@@ -182,7 +187,7 @@ void dectEllipse(Mat src, Mat img)
 		if (k == 1)
 		{
 
-
+			
 			Scalar color = Scalar(0, 255, 255);
 			// ellipse
 
@@ -195,17 +200,18 @@ void dectEllipse(Mat src, Mat img)
 			double b_2 = pow(minEllipse[i].size.height*0.5, 2);
 
 			double dif = abs(a_2 - b_2) / a_2;
-			/*cout << "dif: " << dif << endl;*/
+		
 
-			if (dif < 0.1)//判断是否为圆
+			if (dif < 0.12)//判断是否为圆
 			{
 				num_c++;
-
+				
 				cout << "圆中心点为: " << center << endl;
 			}
 			else
 			{
 				num_e++;
+				cout << "dif: " << dif << endl;
 				cout << "椭圆中心点为: " << center << endl;
 			}
 
@@ -223,6 +229,7 @@ void dectEllipse(Mat src, Mat img)
 
 	/// 结果在窗体中显示
 	imshow("检测结果", srcTemp);
+	imwrite("检测结果.jpg", srcTemp);
 	cout << "存在圆印章个数: " << num_c << endl;
 	cout << "存在椭圆印章个数: " << num_e << endl;
 
