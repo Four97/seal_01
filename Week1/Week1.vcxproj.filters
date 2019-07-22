@@ -18,12 +18,30 @@
     <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="pre.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="dectRect.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="dectEllipse.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="seal.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pre.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="dectRect.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="dectEllipse.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
