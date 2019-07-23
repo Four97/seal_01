@@ -100,7 +100,7 @@ void filteredRed(const Mat &inputImage, Mat &resultGray, Mat &resultColor) {
 			I = inputImage.at<Vec3b>(i, j)[2];
 			if (S >= 35)
 			{
-				if ((H >= 0 && H < 24) || H >= 120)
+				if ((H >= 0 && H < 24) || H >= 120)//120
 				{
 
 					resultGray.at<uchar>(i, j) = 0;

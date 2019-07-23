@@ -104,7 +104,7 @@ void dect_rect(Mat src, Mat imgRect)
 		center_r[i] = center;
 
 		int k = 1;
-		for (int j = 0; j < i; j++)
+		for (int j = i + 1; j < contours.size(); j++)
 		{
 			double dif_x = center_r[i].x - center_r[j].x;
 			double dif_y = center_r[i].y - center_r[j].y;

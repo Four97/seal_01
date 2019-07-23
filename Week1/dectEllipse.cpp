@@ -84,14 +84,14 @@ bool checkEllipseShape(Mat src, vector<Point> contour, RotatedRect ellipse, doub
 
 	//match shape
 	double a0 = matchShapes(ellipse_point, contour, CV_CONTOURS_MATCH_I1, 0);
-	cout << "测试" << a0 << endl;
-	if (a0 > 0.01)
+	//cout << "测试" << a0 << endl;
+	if (a0 > 0.01)//0.01
 	{
 		//cout << "a0" << a0 << endl;
 		return true;
 
 	}
-
+	
 	return false;
 }
 
@@ -108,13 +108,16 @@ void dectEllipse(Mat src, Mat img)
 	Mat outgray_2;
 	outgray_2 = img.clone();
 	bilateralFilter(outgray_2, imgTemp, 15, 90, 3);//15,90,3
+	//namedWindow("imgTemp", WINDOW_NORMAL);
 	//imshow("imgTemp", imgTemp);
 
 	//细化
 	Mat out_thin;
-	thin(imgTemp, out_thin, 7);
+	thin(imgTemp, out_thin, 7);//7
+	//namedWindow("out_thin", WINDOW_NORMAL);
 	imshow("out_thin", out_thin);
-	imwrite("out_thin.jpg", out_thin);
+
+	//imwrite("out_thin.jpg", out_thin);
 	// convert into gray
 	//cvtColor(imgTemp, imgTemp, CV_BGR2GRAY);
 
@@ -145,7 +148,7 @@ void dectEllipse(Mat src, Mat img)
 		}
 
 		//point area
-		if (contourArea(contours[i]) < 500)//原定10
+		if (contourArea(contours[i]) < 3000)//原定500
 		{
 			continue;
 			//cout << "contourArea: " << contourArea(contours[i]) << endl;
@@ -163,10 +166,10 @@ void dectEllipse(Mat src, Mat img)
 		{
 			continue;
 		}
-
+		
 
 		int k = 1;
-		for (int j = 0; j < i; j++)
+		for (int j = i+1; j < contours.size(); j++)
 		{
 			double dif_x = minEllipse[i].center.x - minEllipse[j].center.x;
 			double dif_y = minEllipse[i].center.y - minEllipse[j].center.y;
@@ -187,11 +190,12 @@ void dectEllipse(Mat src, Mat img)
 		if (k == 1)
 		{
 
-			
-			Scalar color = Scalar(0, 255, 255);
+			//cout << 1 << endl;
+			Scalar color_e = Scalar(0, 255, 255);
+			Scalar color_c = Scalar(255, 255, 0);
 			// ellipse
 
-			ellipse(srcTemp, minEllipse[i], color, 2);
+			//ellipse(srcTemp, minEllipse[i], color_e, 2);
 
 
 			Point2f center = minEllipse[i].center;
@@ -207,12 +211,14 @@ void dectEllipse(Mat src, Mat img)
 				num_c++;
 				
 				cout << "圆中心点为: " << center << endl;
+				ellipse(srcTemp, minEllipse[i], color_c, 2);
 			}
 			else
 			{
 				num_e++;
-				cout << "dif: " << dif << endl;
+				//cout << "dif: " << dif << endl;
 				cout << "椭圆中心点为: " << center << endl;
+				ellipse(srcTemp, minEllipse[i], color_e, 2);
 			}
 
 			//cout << "area: " << contourArea(contours[i]) << endl;
@@ -228,6 +234,7 @@ void dectEllipse(Mat src, Mat img)
 
 
 	/// 结果在窗体中显示
+	namedWindow("检测结果", WINDOW_NORMAL);
 	imshow("检测结果", srcTemp);
 	imwrite("检测结果.jpg", srcTemp);
 	cout << "存在圆印章个数: " << num_c << endl;
