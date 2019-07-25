@@ -22,6 +22,49 @@ using namespace std;
 using namespace cv;
 
 
+void edge_detection(Mat& src)
+{
+	/*vector<Vec4i> lines;
+	vector<Point2f> corners;*/
+	Mat srcTemp = src.clone();
+	/*bitwise_not(srcTemp, srcTemp);*/
+	//HoughLinesP(srcTemp, lines, 1, CV_PI / 180, 10, srcTemp.rows / 10, 18);//第5\7个参数需要更改 
+
+
+
+
+
+
+	//方法1（标准霍夫变换）
+	vector<Vec2f> lines;
+	HoughLines(srcTemp, lines, 1, CV_PI / 180, 150, 0, 0);
+	for (size_t i = 0; i < lines.size(); i++) 
+	{
+		float rho = lines[i][0]; // 极坐标中的r长度
+		float theta = lines[i][1]; // 极坐标中的角度
+		Point pt1, pt2;
+		double a = cos(theta), b = sin(theta);
+		double x0 = a * rho, y0 = b * rho;
+		 // 转换为平面坐标的四个点
+		pt1.x = cvRound(x0 + 1000 * (-b));//对一个double型的数进行四舍五入，并返回一个整型数！
+		pt1.y = cvRound(y0 + 1000 * (a));
+		pt2.x = cvRound(x0 - 1000 * (-b));
+		pt2.y = cvRound(y0 - 1000 * (a));
+		line(src, pt1, pt2, Scalar(0, 0, 255), 1, CV_AA);
+	}
+	
+	//for (size_t i = 0; i < lines.size(); i++)
+	//{
+	//	Vec4i l = lines[i];
+	//	/*vector<vector<Point>> contours;
+	//	contours[i] = Point(l[0], l[1]), Point(l[2], l[3]);*/
+	//	line(src, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 0, 255), 1);
+	//	Point2f pt = (Point(l[0], l[1]), Point(l[2], l[3]));
+	//	corners.push_back(pt);
+	//}
+	imshow("【效果图02】", src);
+	
+}
 
 
 //识别矩形及三角形
@@ -40,7 +83,8 @@ void dect_rect(Mat src, Mat imgRect)
 
 	int num_r = 0;//矩形个数
 	int num_t = 0;//三角形个数
-
+	
+	//edge_detection(srcTemp);
 
 	//轮廓检测
 	findContours(srcTemp, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
@@ -90,9 +134,7 @@ void dect_rect(Mat src, Mat imgRect)
 	}
 
 
-
-
-	Point center_r[100];
+	Point center_r[1000];
 	Point center_t[100];
 
 	for (size_t i = 0; i < squares.size(); i += 4)
@@ -104,7 +146,7 @@ void dect_rect(Mat src, Mat imgRect)
 		center_r[i] = center;
 
 		int k = 1;
-		for (int j = i + 1; j < contours.size(); j++)
+		for (int j = 0; j < i; j++)
 		{
 			double dif_x = center_r[i].x - center_r[j].x;
 			double dif_y = center_r[i].y - center_r[j].y;
@@ -114,7 +156,7 @@ void dect_rect(Mat src, Mat imgRect)
 			double dis = (sqrt(dif_x*dif_x + dif_y * dif_y)) / center.x;
 			//cout << "dif: " << dis << endl;
 
-			if (dis < 0.1)
+			if (dis < 0.2)
 			{
 				k = 0;
 				break;
@@ -154,13 +196,13 @@ void dect_rect(Mat src, Mat imgRect)
 		int m = 1;
 		for (int j = 0; j < i; j++)
 		{
-			double dif_x = center_r[i].x - center_r[j].x;
-			double dif_y = center_r[i].y - center_r[j].y;
+			double dif_x = center_t[i].x - center_t[j].x;
+			double dif_y = center_t[i].y - center_t[j].y;
 
 
 			double dis = (sqrt(dif_x*dif_x + dif_y * dif_y)) / center.x;
 
-			if (dis < 2)
+			if (dis < 0.1)
 			{
 				m = 0;
 

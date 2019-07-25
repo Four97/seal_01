@@ -91,7 +91,7 @@ bool checkEllipseShape(Mat src, vector<Point> contour, RotatedRect ellipse, doub
 		return true;
 
 	}
-	
+
 	return false;
 }
 
@@ -101,7 +101,7 @@ void dectEllipse(Mat src, Mat img)
 	Mat srcTemp = src.clone();
 	Mat imgTemp = img.clone();
 
-	imwrite("imgTemp.jpg", imgTemp);
+	//imwrite("imgTemp.jpg", imgTemp);
 
 
 	//滤波
@@ -115,7 +115,7 @@ void dectEllipse(Mat src, Mat img)
 	Mat out_thin;
 	thin(imgTemp, out_thin, 7);//7
 	//namedWindow("out_thin", WINDOW_NORMAL);
-	imshow("out_thin", out_thin);
+	//imshow("out_thin", out_thin);
 
 	//imwrite("out_thin.jpg", out_thin);
 	// convert into gray
@@ -123,6 +123,7 @@ void dectEllipse(Mat src, Mat img)
 
 	Mat threshold_output;
 	vector<vector<Point> > contours;
+	vector<Point > contours2;
 
 	int num_c = 0;//圆的个数
 	int num_e = 0;//椭圆的个数
@@ -135,12 +136,12 @@ void dectEllipse(Mat src, Mat img)
 
 	//imshow("threshold_output", threshold_output);
 	//imshow("imgTemp", imgTemp);
-
 	//fit ellipse
 	vector<RotatedRect> minEllipse(contours.size());
+	vector<RotatedRect> minEllipse2;
 	for (int i = 0; i < contours.size(); i++)
 	{
-		
+
 		//point size check
 		if (contours[i].size() < 10)
 		{
@@ -166,29 +167,48 @@ void dectEllipse(Mat src, Mat img)
 		{
 			continue;
 		}
-		
+
 
 		int k = 1;
-		for (int j = i+1; j < contours.size(); j++)
+		for (int j = 0; j < minEllipse2.size(); j++)
 		{
-			double dif_x = minEllipse[i].center.x - minEllipse[j].center.x;
-			double dif_y = minEllipse[i].center.y - minEllipse[j].center.y;
-			double a_2 = pow(minEllipse[i].size.width*0.5, 2);
+			double dif_x = minEllipse[i].center.x - minEllipse2[j].center.x;
+			double dif_y = minEllipse[i].center.y - minEllipse2[j].center.y;
+			double a_2 = pow(minEllipse2[j].size.width*0.5, 2);
 			//double a_2 = minEllipse[i].size.width*0.5;
 			double dis = (dif_x*dif_x + dif_y * dif_y) / a_2;
-			//cout << "dis: " << dis << endl;
-			if (dis < 9e-5)//a^2时 9e-5
+			
+			if (dis < 0.1)//a^2时 9e-5
 			{
 				k = 0;
-				
 				break;
 
 			}
 
+			
+
 		}
+
 
 		if (k == 1)
 		{
+			minEllipse2.push_back(fitEllipse(Mat(contours[i])));
+		}
+		
+
+
+
+
+
+	}
+
+	//cout << "num: " << num << endl;
+	
+
+	for (int j = 0; j < minEllipse2.size(); j++)
+	{
+		
+		
 
 			//cout << 1 << endl;
 			Scalar color_e = Scalar(0, 255, 255);
@@ -198,27 +218,27 @@ void dectEllipse(Mat src, Mat img)
 			//ellipse(srcTemp, minEllipse[i], color_e, 2);
 
 
-			Point2f center = minEllipse[i].center;
+			Point2f center = minEllipse2[j].center;
 
-			double a_2 = pow(minEllipse[i].size.width*0.5, 2);
-			double b_2 = pow(minEllipse[i].size.height*0.5, 2);
+			double a_2 = pow(minEllipse2[j].size.width*0.5, 2);
+			double b_2 = pow(minEllipse2[j].size.height*0.5, 2);
 
 			double dif = abs(a_2 - b_2) / a_2;
-		
+
 
 			if (dif < 0.12)//判断是否为圆
 			{
 				num_c++;
-				
+
 				cout << "圆中心点为: " << center << endl;
-				ellipse(srcTemp, minEllipse[i], color_c, 2);
+				ellipse(srcTemp, minEllipse2[j], color_c, 2);
 			}
 			else
 			{
 				num_e++;
 				//cout << "dif: " << dif << endl;
 				cout << "椭圆中心点为: " << center << endl;
-				ellipse(srcTemp, minEllipse[i], color_e, 2);
+				ellipse(srcTemp, minEllipse2[j], color_e, 2);
 			}
 
 			//cout << "area: " << contourArea(contours[i]) << endl;
@@ -226,10 +246,12 @@ void dectEllipse(Mat src, Mat img)
 
 
 
-		}
-
+		
 
 	}
+
+
+
 
 
 

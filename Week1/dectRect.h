@@ -6,5 +6,6 @@
 
 
 void dect_rect(Mat src, Mat imgRect);
+void edge_detection(Mat& src);
 
 #endif //DECTRECT_H
