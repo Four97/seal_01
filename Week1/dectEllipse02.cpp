@@ -24,7 +24,7 @@ using namespace cv;
 void thin(const Mat &src, Mat &dst, const int iterations);
 
 
-//ÅĞ¶ÏÄâºÏÍÖÔ²ÊÇ·ñ·ûºÏÊµ¼Ê
+//æ£€æµ‹æ¤­åœ†æ˜¯å¦çœŸå®å­˜åœ¨
 bool checkEllipseShape(Mat src, vector<Point> contour, RotatedRect ellipse, double ratio = 0.01)
 {
 	//get all the point on the ellipse point
@@ -84,8 +84,8 @@ bool checkEllipseShape(Mat src, vector<Point> contour, RotatedRect ellipse, doub
 
 	//match shape
 	double a0 = matchShapes(ellipse_point, contour, CV_CONTOURS_MATCH_I1, 0);
-	cout << "²âÊÔ" << a0 << endl;
-	if (a0 > 0.01)//0.01\0.03
+	//cout << "Â²Ã¢ÃŠÃ”" << a0 << endl;
+	if (a0 > 0.01)//0.01
 	{
 		//cout << "a0" << a0 << endl;
 		return true;
@@ -95,7 +95,7 @@ bool checkEllipseShape(Mat src, vector<Point> contour, RotatedRect ellipse, doub
 	return false;
 }
 
-//¼ì²âÍÖÔ²
+//æ£€æµ‹å¯èƒ½å­˜åœ¨çš„æ¤­åœ†
 void dectEllipse(Mat src, Mat img)
 {
 	Mat srcTemp = src.clone();
@@ -104,18 +104,18 @@ void dectEllipse(Mat src, Mat img)
 	//imwrite("imgTemp.jpg", imgTemp);
 
 
-	//ÂË²¨
+	//åŒè¾¹æ»¤æ³¢
 	Mat outgray_2;
 	outgray_2 = img.clone();
-	bilateralFilter(outgray_2, imgTemp,5, 90, 3);//15,90,3//5,90,1
+	bilateralFilter(outgray_2, imgTemp, 15, 90, 3);//15,90,3
 	//namedWindow("imgTemp", WINDOW_NORMAL);
-	/*imshow("imgTemp", imgTemp);*/
+	//imshow("imgTemp", imgTemp);
 
-	//Ï¸»¯
+	//ç»†åŒ–
 	Mat out_thin;
 	thin(imgTemp, out_thin, 7);//7
-	namedWindow("out_thin", WINDOW_NORMAL);
-	imshow("out_thin", out_thin);
+	//namedWindow("out_thin", WINDOW_NORMAL);
+	//imshow("out_thin", out_thin);
 
 	//imwrite("out_thin.jpg", out_thin);
 	// convert into gray
@@ -125,8 +125,8 @@ void dectEllipse(Mat src, Mat img)
 	vector<vector<Point> > contours;
 	vector<Point > contours2;
 
-	int num_c = 0;//Ô²µÄ¸öÊı
-	int num_e = 0;//ÍÖÔ²µÄ¸öÊı
+	int num_c = 0;//åœ†çš„ä¸ªæ•°
+	int num_e = 0;//æ¤­åœ†ä¸ªæ•°
 	vector<Point2f > center1;
 
 	// find contours
@@ -149,7 +149,7 @@ void dectEllipse(Mat src, Mat img)
 		}
 
 		//point area
-		if (contourArea(contours[i]) < 3000)//Ô­¶¨500
+		if (contourArea(contours[i]) < 3000)//500
 		{
 			continue;
 			//cout << "contourArea: " << contourArea(contours[i]) << endl;
@@ -163,12 +163,12 @@ void dectEllipse(Mat src, Mat img)
 		minEllipse[i] = fitEllipse(Mat(contours[i]));
 
 		//check shape
-		if (checkEllipseShape(imgTemp, contours[i], minEllipse[i]))
+		if (checkEllipseShape(out_thin, contours[i], minEllipse[i]))
 		{
 			continue;
 		}
 
-		
+
 		int k = 1;
 		for (int j = 0; j < minEllipse2.size(); j++)
 		{
@@ -178,9 +178,8 @@ void dectEllipse(Mat src, Mat img)
 			//double a_2 = minEllipse[i].size.width*0.5;
 			double dis = (dif_x*dif_x + dif_y * dif_y) / a_2;
 
-			if (dis < 0.1)//a^2Ê± 9e-5
+			if (dis < 0.1)//a^2ÃŠÂ± 9e-5
 			{
-				cout << "1"  << endl;
 				k = 0;
 				break;
 
@@ -227,18 +226,18 @@ void dectEllipse(Mat src, Mat img)
 		double dif = abs(a_2 - b_2) / a_2;
 
 
-		if (dif < 0.25)//ÅĞ¶ÏÊÇ·ñÎªÔ²
+		if (dif < 0.12)//é•¿çŸ­è½´
 		{
 			num_c++;
 
-			cout << "Ô²ÖĞĞÄµãÎª: " << center << endl;
+			cout << "åœ†ä¸­å¿ƒ: " << center << endl;
 			ellipse(srcTemp, minEllipse2[j], color_c, 2);
 		}
 		else
 		{
 			num_e++;
-			cout << "dif: " << dif << endl;
-			cout << "ÍÖÔ²ÖĞĞÄµãÎª: " << center << endl;
+			//cout << "dif: " << dif << endl;
+			cout << "æ¤­åœ†ä¸­å¿ƒ: " << center << endl;
 			ellipse(srcTemp, minEllipse2[j], color_e, 2);
 		}
 
@@ -256,13 +255,13 @@ void dectEllipse(Mat src, Mat img)
 
 
 
-	/// ½á¹ûÔÚ´°ÌåÖĞÏÔÊ¾
-	namedWindow("¼ì²â½á¹û", WINDOW_NORMAL);
-	imshow("¼ì²â½á¹û", srcTemp);
-	imwrite("¼ì²â½á¹û.jpg", srcTemp);
-	cout << "´æÔÚÔ²Ó¡ÕÂ¸öÊı: " << num_c << endl;
-	cout << "´æÔÚÍÖÔ²Ó¡ÕÂ¸öÊı: " << num_e << endl;
 
+	/// ç»“æœåœ¨çª—ä½“ä¸­æ˜¾ç¤º
+	namedWindow("æ£€æµ‹ç»“æœ", WINDOW_NORMAL);
+	//imshow("æ£€æµ‹ç»“æœ", srcTemp);
+	imwrite("æ£€æµ‹ç»“æœ.jpg", srcTemp);
+	cout << "å­˜åœ¨åœ†å°ç« ä¸ªæ•°: " << num_c << endl;
+	cout << "å­˜åœ¨æ¤­åœ†å°ç« ä¸ªæ•°: " << num_e << endl;
 
 
 }
