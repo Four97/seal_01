@@ -41,6 +41,8 @@ bool checkEllipseShape(Mat src, vector<Point> contour, RotatedRect ellipse, doub
 	for (int i = 0; i < ellipse.size.width; i++)
 	{
 		double x = -ellipse.size.width*0.5 + i;
+		/*double x = contour[i].x;*/
+		
 		double y_left = sqrt((1 - (x*x / a_2))*b_2);
 
 		//rotate
@@ -60,6 +62,7 @@ bool checkEllipseShape(Mat src, vector<Point> contour, RotatedRect ellipse, doub
 	for (int i = 0; i < ellipse.size.width; i++)
 	{
 		double x = ellipse.size.width*0.5 - i;
+		/*double x = contour[i].x;*/
 		double y_right = -sqrt((1 - (x*x / a_2))*b_2);
 
 		//rotate
@@ -83,8 +86,8 @@ bool checkEllipseShape(Mat src, vector<Point> contour, RotatedRect ellipse, doub
 	//drawContours(src,contours1,-1,Scalar(255,0,0),2);
 
 	//match shape
-	double a0 = matchShapes(ellipse_point, contour, CV_CONTOURS_MATCH_I1, 0);
-	cout << "测试" << a0 << endl;
+	double a0 = matchShapes(ellipse_point, contour, CV_CONTOURS_MATCH_I1, 0);//I3会小些
+	//cout << "测试： " << a0 << endl;
 	if (a0 > 0.01)//0.01\0.03
 	{
 		//cout << "a0" << a0 << endl;
@@ -107,15 +110,15 @@ void dectEllipse(Mat src, Mat img)
 	//滤波
 	Mat outgray_2;
 	outgray_2 = img.clone();
-	bilateralFilter(outgray_2, imgTemp,5, 90, 3);//15,90,3//5,90,1
-	//namedWindow("imgTemp", WINDOW_NORMAL);
-	/*imshow("imgTemp", imgTemp);*/
+	bilateralFilter(outgray_2, imgTemp,7, 90, 3);//15,90,3//5,90,3//7，90，3
+	/*namedWindow("imgTemp", WINDOW_NORMAL);
+	imshow("imgTemp", imgTemp);*/
 
-	//细化
-	Mat out_thin;
-	thin(imgTemp, out_thin, 7);//7
-	namedWindow("out_thin", WINDOW_NORMAL);
-	imshow("out_thin", out_thin);
+	////细化
+	//Mat out_thin;
+	//thin(imgTemp, out_thin, 7);//7
+	/*namedWindow("out_thin", WINDOW_NORMAL);
+	imshow("out_thin", out_thin);*/
 
 	//imwrite("out_thin.jpg", out_thin);
 	// convert into gray
@@ -131,7 +134,7 @@ void dectEllipse(Mat src, Mat img)
 
 	// find contours
 	//int threshold_value = threshold(imgTemp, threshold_output, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
-	findContours(out_thin, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+	findContours(imgTemp, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
 
 
 	//imshow("threshold_output", threshold_output);
@@ -168,6 +171,7 @@ void dectEllipse(Mat src, Mat img)
 			continue;
 		}
 
+
 		
 		int k = 1;
 		for (int j = 0; j < minEllipse2.size(); j++)
@@ -180,7 +184,7 @@ void dectEllipse(Mat src, Mat img)
 
 			if (dis < 0.1)//a^2时 9e-5
 			{
-				cout << "1"  << endl;
+				//cout << "1"  << endl;
 				k = 0;
 				break;
 
@@ -237,7 +241,7 @@ void dectEllipse(Mat src, Mat img)
 		else
 		{
 			num_e++;
-			cout << "dif: " << dif << endl;
+			//cout << "dif: " << dif << endl;
 			cout << "椭圆中心点为: " << center << endl;
 			ellipse(srcTemp, minEllipse2[j], color_e, 2);
 		}

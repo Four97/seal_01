@@ -116,7 +116,7 @@ void filteredRed(const Mat &inputImage, Mat &resultGray, Mat &resultColor) {
 		}
 	}
 	//imshow("filter1", resultColor);
-	//imshow("filter2", resultGray);
+	/*imshow("filter2", resultGray);*/
 
 }
 

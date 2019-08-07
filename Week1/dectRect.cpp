@@ -67,6 +67,18 @@ void edge_detection(Mat& src)
 }
 
 
+double angle(cv::Point pt1, cv::Point pt2, cv::Point pt0)//求角度 
+{ 
+	double dx1 = pt1.x - pt0.x; 
+	double dy1 = pt1.y - pt0.y; 
+	double dx2 = pt2.x - pt0.x; 
+	double dy2 = pt2.y - pt0.y; 
+	return (dx1*dx2 + dy1*dy2) / sqrt((dx1*dx1 + dy1*dy1)*(dx2*dx2 + dy2*dy2) + 1e-10);
+}
+
+
+
+
 //识别矩形及三角形
 
 void dect_rect(Mat src, Mat imgRect)
@@ -87,7 +99,7 @@ void dect_rect(Mat src, Mat imgRect)
 	//edge_detection(srcTemp);
 
 	//轮廓检测
-	findContours(srcTemp, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+	findContours(srcTemp, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
 	for (size_t i = 0; i < contours.size(); i++)
 	{
 		approxPolyDP(contours[i], approx, arcLength(Mat(contours[i]), true)*0.02, true);
@@ -97,14 +109,29 @@ void dect_rect(Mat src, Mat imgRect)
 		if (approx.size() == 4 && fabs(contourArea(Mat(approx))) > 3000 && isContourConvex(Mat(approx)))
 		{
 			double minDist = 1e10;
+			double maxCosine = 0.0;
 			for (int i = 0; i < 4; i++)
 			{
 				Point side = approx[i] - approx[(i + 1) % 4];
 				double squaredSideLength = side.dot(side);
 				minDist = min(minDist, squaredSideLength);
 			}
+
 			if (minDist < 30)
 				break;
+			for (int j = 0; j < 5; j++) 
+			{ 
+				if (j >= 2)
+				{ 
+					double cosine = fabs(angle(approx[j % 4], approx[j - 2], approx[j - 1]));
+					maxCosine = MAX(maxCosine, cosine);
+				} 
+			}
+			if (maxCosine < 0.1)
+			{
+				for (int i = 0; i < 4; i++)
+					squares.push_back(Point(approx[i].x, approx[i].y));
+			}
 			for (int i = 0; i < 4; i++)
 				squares.push_back(Point(approx[i].x, approx[i].y));
 		}
